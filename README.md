@@ -39,4 +39,5 @@ To get it working, first double click on `win_compile_shaders.bat` to compile th
 
 If you forget to compile the shaders first, CMake won't copy them into the right location.  Either shut down Visual Studio,
 delete the .vs and out directories and load the folder again, or make some trivial change to the CMakeLists.txt file (i.e.
-add a space) to get it to reload.  There probably is a way but I don't really develop on Windows and I'm a Visual Studio noob!
+add a space) to get it to reload.  There probably is a better way to do this but I don't really develop on Windows and I'm a
+Visual Studio noob!
