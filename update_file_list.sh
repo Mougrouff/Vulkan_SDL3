@@ -5,6 +5,6 @@ find src -name "*.c" >> sourcelist.cmake
 echo ")" >> sourcelist.cmake
 
 echo "set(header_list" >> sourcelist.cmake
-#find include -name "*.h" >> sourcelist.cmake
+find include -name "*.h" >> sourcelist.cmake
 echo ")" >> sourcelist.cmake
 
