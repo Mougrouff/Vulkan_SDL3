@@ -210,9 +210,6 @@ QueueFamilyIndices find_queue_families(VkPhysicalDevice device) {
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families);
 
 	for (int i = 0; i < queue_family_count; i++) {
-		bool has_graphics_family = false;
-		bool has_present_family = false;
-
 		if (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphics_family = i;
 			indices.has_graphics_family = true;
@@ -226,7 +223,7 @@ QueueFamilyIndices find_queue_families(VkPhysicalDevice device) {
 			indices.has_present_family = true;
 		}
 
-		if (has_graphics_family && has_present_family) {
+		if (indices.has_graphics_family && indices.has_present_family) {
 			break;
 		}
 	}
