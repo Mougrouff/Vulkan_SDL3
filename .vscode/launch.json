@@ -1,0 +1,17 @@
+
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cppvsdbg",
+            "request": "launch",
+            "name": "Launch VulkanTest (Debug)",
+            "program": "${workspaceFolder}/build/Debug/main.exe",
+            "cwd": "${workspaceFolder}/build/Debug",
+            "stopAtEntry": false,
+            "symbolSearchPath": "${workspaceFolder}/build/Debug",
+            "console": "externalTerminal",
+            "preLaunchTask": "build-debug"
+        }
+    ]
+}

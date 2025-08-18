@@ -1,5 +1,5 @@
 set(source_list
-src/main.c
+src/main.cpp
 src/io.c
 )
 set(header_list

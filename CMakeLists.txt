@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.30)
 project(VulkanTest
 	VERSION 1.0
 	DESCRIPTION "Vulkan Test App"
-	LANGUAGES C)
+	LANGUAGES C CXX
+)
+
+set (CMAKE_CXX_STANDARD 20)
 
 # Function to find the latest Vulkan SDK version in a given directory - needed for good old Windows
 function(find_latest_vulkan_sdk base_path output_var)
@@ -20,9 +23,15 @@ endfunction()
 
 find_package(Vulkan REQUIRED)
 
+include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 
 include(sourcelist.cmake)
+
+add_subdirectory(engine)
+
+message("Sources : ${source_list}")
+
 add_executable(main ${source_list} ${header_list})
 
 # Library linking is OS dependent
@@ -54,7 +63,7 @@ elseif(WIN32)
 	message(STATUS "Found Vulkan SDK at: ${VULKAN_SDK_PATH}")
 	
     # Add Vulkan include directory
-    target_include_directories(main PUBLIC "${VULKAN_SDK_PATH}/Include")
+    include_directories(main PUBLIC "${VULKAN_SDK_PATH}/Include")
 	target_link_libraries(main PRIVATE "${VULKAN_SDK_PATH}/Lib/vulkan-1.lib")
 
 	target_include_directories(main PUBLIC "${CMAKE_SOURCE_DIR}/win/include")
