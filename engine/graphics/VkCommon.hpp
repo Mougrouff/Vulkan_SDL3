@@ -82,4 +82,20 @@ struct DeviceMesh {
 	DeviceResource indicesResource;
 };
 
+// Wrapper for vulkan types with initialization
+
+template <typename T>
+struct VkTypeWrapper {
+	T data;
+	VkTypeWrapper() {
+		memset(&data, 0, sizeof(T));
+	}
+	operator T&() {
+		return data;
+	}
+	operator const T&() const {
+		return data;
+	}
+};
+
 }

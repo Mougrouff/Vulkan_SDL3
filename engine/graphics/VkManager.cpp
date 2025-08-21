@@ -156,8 +156,7 @@ uint32_t VkManager::find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags
     * See https://vulkan-tutorial.com/Vertex_buffers/Staging_buffer#page_Memory_types
     * for an explanation of how this works
     */
-    VkPhysicalDeviceMemoryProperties mem_properties;
-    memset(&mem_properties, 0, sizeof(VkPhysicalDeviceMemoryProperties));
+    VkPhysicalDeviceMemoryProperties mem_properties = VkTypeWrapper<VkPhysicalDeviceMemoryProperties>{};
     vkGetPhysicalDeviceMemoryProperties(physical_device, &mem_properties);
 
     for (uint32_t i = 0; i < mem_properties.memoryTypeCount; i++) {
@@ -325,8 +324,7 @@ void VkManager::create_image_views() {
 	swap_chain_image_views = new VkImageView[swap_chain_image_views_count];
 
 	for (size_t i = 0; i < swap_chain_image_views_count; i++) {
-		VkImageViewCreateInfo create_info;
-		memset(&create_info, 0, sizeof(VkImageViewCreateInfo));
+		VkImageViewCreateInfo create_info = VkTypeWrapper<VkImageViewCreateInfo>{};
 		create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		create_info.image = swap_chain_images[i];
 		create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -369,8 +367,7 @@ void VkManager::create_framebuffers() {
 			swap_chain_image_views[i]
 		};
 
-		VkFramebufferCreateInfo framebuffer_info;
-		memset(&framebuffer_info, 0, sizeof(VkFramebufferCreateInfo));
+		VkFramebufferCreateInfo framebuffer_info = VkTypeWrapper<VkFramebufferCreateInfo>{};
 		framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebuffer_info.renderPass = render_pass;
 		framebuffer_info.attachmentCount = 1;
@@ -397,7 +394,6 @@ void VkManager::cleanup_framebuffers() {
 	swap_chain_framebuffers = NULL;
 	swap_chain_framebuffers_count = 0;
 }
-
 
 void VkManager::create_swap_chain() {
 	VK::SwapChainSupportDetails swap_chain_support = query_swap_chain_support(physical_device);
@@ -440,8 +436,7 @@ void VkManager::create_swap_chain() {
 		image_count = swap_chain_support.capabilities.maxImageCount;
 	}
 
-	VkSwapchainCreateInfoKHR create_info;
-	memset(&create_info, 0, sizeof(VkSwapchainCreateInfoKHR));
+	VkSwapchainCreateInfoKHR create_info = VkTypeWrapper<VkSwapchainCreateInfoKHR>{};
 	create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	create_info.surface = surface;
 
@@ -519,15 +514,13 @@ void VkManager::create_graphics_pipeline(void) {
 	VkShaderModule frag_shader_module = create_shader_module(frag_shader_code, frag_shader_code_size);
 	free(frag_shader_code);
 
-	VkPipelineShaderStageCreateInfo vert_shader_stage_info;
-	memset(&vert_shader_stage_info, 0, sizeof(VkPipelineShaderStageCreateInfo));
+	VkPipelineShaderStageCreateInfo vert_shader_stage_info = VkTypeWrapper<VkPipelineShaderStageCreateInfo>{};
 	vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
 	vert_shader_stage_info.module = vert_shader_module;
 	vert_shader_stage_info.pName = "main";
 
-	VkPipelineShaderStageCreateInfo frag_shader_stage_info;
-	memset(&frag_shader_stage_info, 0, sizeof(VkPipelineShaderStageCreateInfo));
+	VkPipelineShaderStageCreateInfo frag_shader_stage_info = VkTypeWrapper<VkPipelineShaderStageCreateInfo>{};
 	frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	frag_shader_stage_info.module = frag_shader_module;
@@ -540,28 +533,24 @@ void VkManager::create_graphics_pipeline(void) {
 	size_t attribute_descriptions_count;
 	VkVertexInputAttributeDescription* attribute_descriptions = get_attribute_descriptions(&attribute_descriptions_count);
 	
-	VkPipelineVertexInputStateCreateInfo vertex_input_info;
-	memset(&vertex_input_info, 0, sizeof(VkPipelineVertexInputStateCreateInfo));
+	VkPipelineVertexInputStateCreateInfo vertex_input_info = VkTypeWrapper<VkPipelineVertexInputStateCreateInfo>{};
 	vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertex_input_info.vertexBindingDescriptionCount = 1;
 	vertex_input_info.vertexAttributeDescriptionCount = attribute_descriptions_count;
 	vertex_input_info.pVertexBindingDescriptions = &binding_description;
 	vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions;
 
-	VkPipelineInputAssemblyStateCreateInfo input_assembly;
-	memset(&input_assembly, 0, sizeof(VkPipelineInputAssemblyStateCreateInfo));
+	VkPipelineInputAssemblyStateCreateInfo input_assembly = VkTypeWrapper<VkPipelineInputAssemblyStateCreateInfo>{};
 	input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 	input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	input_assembly.primitiveRestartEnable = VK_FALSE;
 
-	VkPipelineViewportStateCreateInfo viewport_state;
-	memset(&viewport_state, 0, sizeof(VkPipelineViewportStateCreateInfo));
+	VkPipelineViewportStateCreateInfo viewport_state = VkTypeWrapper<VkPipelineViewportStateCreateInfo>{};
 	viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewport_state.viewportCount = 1;
 	viewport_state.scissorCount = 1;
 
-	VkPipelineRasterizationStateCreateInfo rasterizer;
-	memset(&rasterizer, 0, sizeof(VkPipelineRasterizationStateCreateInfo));
+	VkPipelineRasterizationStateCreateInfo rasterizer = VkTypeWrapper<VkPipelineRasterizationStateCreateInfo>{};
 	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
@@ -571,19 +560,16 @@ void VkManager::create_graphics_pipeline(void) {
 	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
 
-	VkPipelineMultisampleStateCreateInfo multisampling;
-	memset(&multisampling, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
+	VkPipelineMultisampleStateCreateInfo multisampling = VkTypeWrapper<VkPipelineMultisampleStateCreateInfo>{};
 	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 	multisampling.sampleShadingEnable = VK_FALSE;
 	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 
-	VkPipelineColorBlendAttachmentState color_blend_attachment;
-	memset(&color_blend_attachment, 0, sizeof(VkPipelineColorBlendAttachmentState));
+	VkPipelineColorBlendAttachmentState color_blend_attachment = VkTypeWrapper<VkPipelineColorBlendAttachmentState>{};
 	color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 	color_blend_attachment.blendEnable = VK_FALSE;
 
-	VkPipelineColorBlendStateCreateInfo color_blending;
-	memset(&color_blending, 0, sizeof(VkPipelineColorBlendStateCreateInfo));
+	VkPipelineColorBlendStateCreateInfo color_blending = VkTypeWrapper<VkPipelineColorBlendStateCreateInfo>{};
 	color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 	color_blending.logicOpEnable = VK_FALSE;
 	color_blending.logicOp = VK_LOGIC_OP_COPY;
@@ -596,14 +582,12 @@ void VkManager::create_graphics_pipeline(void) {
 
 	VkDynamicState dynamic_states[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
 
-	VkPipelineDynamicStateCreateInfo dynamic_state;
-	memset(&dynamic_state, 0, sizeof(VkPipelineDynamicStateCreateInfo));
+	VkPipelineDynamicStateCreateInfo dynamic_state = VkTypeWrapper<VkPipelineDynamicStateCreateInfo>{};
 	dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamic_state.dynamicStateCount = 2;
 	dynamic_state.pDynamicStates = dynamic_states;
 
-	VkPipelineLayoutCreateInfo pipeline_layout_info;
-	memset(&pipeline_layout_info, 0, sizeof(VkPipelineLayoutCreateInfo));
+	VkPipelineLayoutCreateInfo pipeline_layout_info = VkTypeWrapper<VkPipelineLayoutCreateInfo>{};
 	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipeline_layout_info.setLayoutCount = 1;
 	pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
@@ -614,8 +598,7 @@ void VkManager::create_graphics_pipeline(void) {
 		exit(1);
 	}
 
-	VkGraphicsPipelineCreateInfo pipeline_info;
-	memset(&pipeline_info, 0, sizeof(VkGraphicsPipelineCreateInfo));
+	VkGraphicsPipelineCreateInfo pipeline_info = VkTypeWrapper<VkGraphicsPipelineCreateInfo>{};
 	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 	pipeline_info.stageCount = 2;
 	pipeline_info.pStages = shader_stages;
@@ -646,8 +629,7 @@ void VkManager::create_graphics_pipeline(void) {
 }
 
 VkShaderModule VkManager::create_shader_module(const char* code, size_t code_size) {
-	VkShaderModuleCreateInfo create_info;
-	memset(&create_info, 0, sizeof(VkShaderModuleCreateInfo));
+	VkShaderModuleCreateInfo create_info = VkTypeWrapper<VkShaderModuleCreateInfo>{};
 	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	create_info.codeSize = code_size;
 	create_info.pCode = (const uint32_t*)code;
@@ -664,8 +646,7 @@ VkShaderModule VkManager::create_shader_module(const char* code, size_t code_siz
 DeviceResource VkManager::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties) {
 	DeviceResource resource;
     
-    VkBufferCreateInfo buffer_info;
-	memset(&buffer_info, 0, sizeof(VkBufferCreateInfo));
+    VkBufferCreateInfo buffer_info = VkTypeWrapper<VkBufferCreateInfo>{};
 	buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 	buffer_info.size = size;
 	buffer_info.usage = usage;  
@@ -676,12 +657,10 @@ DeviceResource VkManager::createBuffer(VkDeviceSize size, VkBufferUsageFlags usa
 		exit(1);
 	}
 
-	VkMemoryRequirements mem_requirements;
-	memset(&mem_requirements, 0, sizeof(VkMemoryRequirements));
+	VkMemoryRequirements mem_requirements = VkTypeWrapper<VkMemoryRequirements>{};
 	vkGetBufferMemoryRequirements(device, resource.buffer, &mem_requirements);
 
-	VkMemoryAllocateInfo alloc_info;
-	memset(&alloc_info, 0, sizeof(VkMemoryAllocateInfo));
+	VkMemoryAllocateInfo alloc_info = VkTypeWrapper<VkMemoryAllocateInfo>{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	alloc_info.allocationSize = mem_requirements.size;
 	alloc_info.memoryTypeIndex = find_memory_type(mem_requirements.memoryTypeBits, properties);
@@ -700,33 +679,28 @@ void VkManager::copyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSiz
 	/*
 	 * Copy buffers - used to copy from staging buffer into vertext buffer
 	 */
-	VkCommandBufferAllocateInfo alloc_info;
-	memset(&alloc_info, 0, sizeof(VkCommandBufferAllocateInfo));
+	VkCommandBufferAllocateInfo alloc_info = VkTypeWrapper<VkCommandBufferAllocateInfo>{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	alloc_info.commandPool = command_pool;
 	alloc_info.commandBufferCount = 1;
 
-	VkCommandBuffer command_buffer;
-	memset(&command_buffer, 0, sizeof(VkCommandBuffer));
+	VkCommandBuffer command_buffer = VkTypeWrapper<VkCommandBuffer>{};
 	vkAllocateCommandBuffers(device, &alloc_info, &command_buffer);
 
-	VkCommandBufferBeginInfo begin_info;
-	memset(&begin_info, 0, sizeof(VkCommandBufferBeginInfo));
+	VkCommandBufferBeginInfo begin_info = VkTypeWrapper<VkCommandBufferBeginInfo>{};
 	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
 	vkBeginCommandBuffer(command_buffer, &begin_info);
 
-	VkBufferCopy copy_region;
-	memset(&copy_region, 0, sizeof(VkBufferCopy));
+	VkBufferCopy copy_region = VkTypeWrapper<VkBufferCopy>{};
 	copy_region.size = size;
 	vkCmdCopyBuffer(command_buffer, src_buffer, dst_buffer, 1, &copy_region);
 
 	vkEndCommandBuffer(command_buffer);
 
-	VkSubmitInfo submit_info;
-	memset(&submit_info, 0, sizeof(VkSubmitInfo));
+	VkSubmitInfo submit_info = VkTypeWrapper<VkSubmitInfo>{};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &command_buffer;
@@ -762,8 +736,7 @@ void VkManager::init_vulkan() {
 		exit(1);
 	}
 	
-	VkApplicationInfo app_info;
-	memset(&app_info, 0, sizeof(VkApplicationInfo));
+	VkApplicationInfo app_info = VkTypeWrapper<VkApplicationInfo>{};
 	app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	app_info.pApplicationName = "Hello Triangle";
 	app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -771,8 +744,7 @@ void VkManager::init_vulkan() {
 	app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 	app_info.apiVersion = VK_API_VERSION_1_0;
 
-	VkInstanceCreateInfo instance_create_info;
-	memset(&instance_create_info, 0, sizeof(VkInstanceCreateInfo));
+	VkInstanceCreateInfo instance_create_info = VkTypeWrapper<VkInstanceCreateInfo>{};
 	instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	instance_create_info.pApplicationInfo = &app_info;
 
@@ -782,8 +754,7 @@ void VkManager::init_vulkan() {
 		printf(" Extension: %s\n", instance_create_info.ppEnabledExtensionNames[i]);
 	}
 
-	VkDebugUtilsMessengerCreateInfoEXT debug_create_info;
-	memset(&debug_create_info, 0, sizeof(VkDebugUtilsMessengerCreateInfoEXT));
+	VkDebugUtilsMessengerCreateInfoEXT debug_create_info = VkTypeWrapper<VkDebugUtilsMessengerCreateInfoEXT>{};
 	if (vk_config.enableValidationLayers) {
 		instance_create_info.enabledLayerCount = NUM_VALIDATION_LAYERS;
 		instance_create_info.ppEnabledLayerNames = VK::ValidationLayers;
@@ -803,8 +774,7 @@ void VkManager::init_vulkan() {
 
 	// ----- Create the debug messenger -----
 	if (vk_config.enableValidationLayers) {
-		VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info;
-		memset(&debug_messenger_create_info, 0, sizeof(VkDebugUtilsMessengerCreateInfoEXT));
+		VkDebugUtilsMessengerCreateInfoEXT debug_messenger_create_info = VkTypeWrapper<VkDebugUtilsMessengerCreateInfoEXT>{};
 		populate_debug_messenger_create_info(&debug_messenger_create_info);
 		
 		// Create the debug messenger
@@ -845,8 +815,7 @@ void VkManager::init_vulkan() {
 
 	float queue_priority = 1.0f;
 	for (uint32_t i = 0; i < num_unique_queue_families; i++) {
-		VkDeviceQueueCreateInfo queue_create_info;
-		memset(&queue_create_info, 0, sizeof(VkDeviceQueueCreateInfo));
+		VkDeviceQueueCreateInfo queue_create_info = VkTypeWrapper<VkDeviceQueueCreateInfo>{};
 		queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queue_create_info.queueFamilyIndex = unique_queue_families[i];
 		queue_create_info.queueCount = 1;
@@ -855,11 +824,8 @@ void VkManager::init_vulkan() {
 		queue_create_infos[i] = queue_create_info;
 	}
 
-	VkPhysicalDeviceFeatures device_features;
-	memset(&device_features, 0, sizeof(VkPhysicalDeviceFeatures));
-
-	VkDeviceCreateInfo create_info;
-	memset(&create_info, 0, sizeof(VkDeviceCreateInfo));
+	VkPhysicalDeviceFeatures device_features = VkTypeWrapper<VkPhysicalDeviceFeatures>{};
+	VkDeviceCreateInfo create_info = VkTypeWrapper<VkDeviceCreateInfo>{};
 	create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
 	create_info.queueCreateInfoCount = num_unique_queue_families;
@@ -921,8 +887,7 @@ void VkManager::init_vulkan() {
 	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-	VkRenderPassCreateInfo render_pass_info;
-	memset(&render_pass_info, 0, sizeof(VkRenderPassCreateInfo));
+	VkRenderPassCreateInfo render_pass_info = VkTypeWrapper<VkRenderPassCreateInfo>{};
 	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	render_pass_info.attachmentCount = 1;
 	render_pass_info.pAttachments = &color_attachment;
@@ -940,16 +905,14 @@ void VkManager::init_vulkan() {
 
 	// ----- Set up uniform buffer layout -----
 	// create_descriptor_set_layout()
-	VkDescriptorSetLayoutBinding ubo_layout_binding;
-	memset(&ubo_layout_binding, 0, sizeof(VkDescriptorSetLayoutBinding));
+	VkDescriptorSetLayoutBinding ubo_layout_binding = VkTypeWrapper<VkDescriptorSetLayoutBinding>{};
 	ubo_layout_binding.binding = 0;
 	ubo_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	ubo_layout_binding.descriptorCount = 1;
 	ubo_layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 	ubo_layout_binding.pImmutableSamplers = NULL;
 
-	VkDescriptorSetLayoutCreateInfo layout_info;
-	memset(&layout_info, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+	VkDescriptorSetLayoutCreateInfo layout_info = VkTypeWrapper<VkDescriptorSetLayoutCreateInfo>{};
 	layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layout_info.bindingCount = 1;
 	layout_info.pBindings = &ubo_layout_binding;
@@ -966,8 +929,7 @@ void VkManager::init_vulkan() {
 	create_framebuffers();
 	
 	// ----- Create the command pool -----
-	VkCommandPoolCreateInfo command_pool_info;
-	memset(&command_pool_info, 0, sizeof(VkCommandPoolCreateInfo));
+	VkCommandPoolCreateInfo command_pool_info = VkTypeWrapper<VkCommandPoolCreateInfo>{};
 	command_pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	command_pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 	command_pool_info.queueFamilyIndex = physical_indices.graphics_family;
@@ -1033,13 +995,11 @@ void VkManager::init_vulkan() {
 	}
 
 	// ----- Create the descriptor pool -----
-	VkDescriptorPoolSize desc_pool_size;
-	memset(&desc_pool_size, 0, sizeof(VkDescriptorPoolSize));
+	VkDescriptorPoolSize desc_pool_size = VkTypeWrapper<VkDescriptorPoolSize>{};
 	desc_pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	desc_pool_size.descriptorCount = MAX_FRAMES_IN_FLIGHT;
 
-	VkDescriptorPoolCreateInfo desc_pool_info;
-	memset(&desc_pool_info, 0, sizeof(VkDescriptorPoolCreateInfo));
+	VkDescriptorPoolCreateInfo desc_pool_info = VkTypeWrapper<VkDescriptorPoolCreateInfo>{};
 	desc_pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	desc_pool_info.poolSizeCount = 1;
 	desc_pool_info.pPoolSizes = &desc_pool_size;
@@ -1056,8 +1016,7 @@ void VkManager::init_vulkan() {
 		ds_layouts[i] = descriptor_set_layout;
 	}
 
-	VkDescriptorSetAllocateInfo ds_alloc_info;
-	memset(&ds_alloc_info, 0, sizeof(VkDescriptorSetAllocateInfo));
+	VkDescriptorSetAllocateInfo ds_alloc_info = VkTypeWrapper<VkDescriptorSetAllocateInfo>{};
 	ds_alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	ds_alloc_info.descriptorPool = descriptor_pool;
 	ds_alloc_info.descriptorSetCount = MAX_FRAMES_IN_FLIGHT;
@@ -1069,14 +1028,12 @@ void VkManager::init_vulkan() {
 	}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-		VkDescriptorBufferInfo buffer_info;
-		memset(&buffer_info, 0, sizeof(VkDescriptorBufferInfo));
+		VkDescriptorBufferInfo buffer_info = VkTypeWrapper<VkDescriptorBufferInfo>{};
 		buffer_info.buffer = uniformResources[i].buffer;
 		buffer_info.offset = 0;
 		buffer_info.range = sizeof(VK::UniformBufferObject);
 
-		VkWriteDescriptorSet descriptor_write;
-		memset(&descriptor_write, 0, sizeof(VkWriteDescriptorSet));
+		VkWriteDescriptorSet descriptor_write = VkTypeWrapper<VkWriteDescriptorSet>{};
 		descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptor_write.dstSet = descriptor_sets[i];
 		descriptor_write.dstBinding = 0;
@@ -1091,8 +1048,7 @@ void VkManager::init_vulkan() {
 	}
 
 	// ----- Create the command buffers -----
-	VkCommandBufferAllocateInfo buf_alloc_info;
-	memset(&buf_alloc_info, 0, sizeof(VkCommandBufferAllocateInfo));
+	VkCommandBufferAllocateInfo buf_alloc_info = VkTypeWrapper<VkCommandBufferAllocateInfo>{};
 	buf_alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	buf_alloc_info.commandPool = command_pool;
 	buf_alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1104,12 +1060,10 @@ void VkManager::init_vulkan() {
 	}
 
 	// ----- Create the semaphores -----
-	VkSemaphoreCreateInfo semaphore_info;
-	memset(&semaphore_info, 0, sizeof(VkSemaphoreCreateInfo));
+	VkSemaphoreCreateInfo semaphore_info = VkTypeWrapper<VkSemaphoreCreateInfo>{};
 	semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-	VkFenceCreateInfo fence_info;
-	memset(&fence_info, 0, sizeof(VkFenceCreateInfo));
+	VkFenceCreateInfo fence_info = VkTypeWrapper<VkFenceCreateInfo>{};
 	fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
@@ -1126,8 +1080,7 @@ void VkManager::init_vulkan() {
 }
 
 void VkManager::record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index) {
-	VkCommandBufferBeginInfo begin_info;
-	memset(&begin_info, 0, sizeof(VkCommandBufferBeginInfo));
+	VkCommandBufferBeginInfo begin_info = VkTypeWrapper<VkCommandBufferBeginInfo>{};
 	begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
 	if (vkBeginCommandBuffer(command_buffer, &begin_info) != VK_SUCCESS) {
@@ -1135,8 +1088,7 @@ void VkManager::record_command_buffer(VkCommandBuffer command_buffer, uint32_t i
 		exit(1);
 	}
 
-	VkRenderPassBeginInfo render_pass_info;
-	memset(&render_pass_info, 0, sizeof(VkRenderPassBeginInfo));
+	VkRenderPassBeginInfo render_pass_info = VkTypeWrapper<VkRenderPassBeginInfo>{};
 	render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	render_pass_info.renderPass = render_pass;
 	render_pass_info.framebuffer = swap_chain_framebuffers[image_index];
@@ -1239,8 +1191,7 @@ void VkManager::drawFrame() {
 
 	memcpy(uniform_buffers_mapped[current_frame], &ubo, sizeof(ubo));
 
-	VkSubmitInfo submit_info;
-	memset(&submit_info, 0, sizeof(VkSubmitInfo));
+	VkSubmitInfo submit_info = VkTypeWrapper<VkSubmitInfo>{};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	
 	VkSemaphore wait_semaphores[] = {image_available_semaphores[current_frame]};
@@ -1261,8 +1212,7 @@ void VkManager::drawFrame() {
 		exit(1);
 	}
 
-	VkPresentInfoKHR present_info;
-	memset(&present_info, 0, sizeof(VkPresentInfoKHR));
+	VkPresentInfoKHR present_info = VkTypeWrapper<VkPresentInfoKHR>{};
 	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
 	present_info.waitSemaphoreCount = 1;
