@@ -2,7 +2,7 @@
 
 #include "VkCommon.hpp"
 
-namespace Graphics {
+namespace VK {
 
     
 class VkScreen {

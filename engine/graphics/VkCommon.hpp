@@ -15,7 +15,8 @@ extern "C" {
 
 	#include "io.h"
 }
-namespace Graphics{
+
+namespace VK{
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////  Common data types  ///////////////////////////////////////
@@ -72,6 +73,13 @@ struct DeviceResource {
 	VkBuffer buffer{0};
 	VkDeviceMemory memory{0};
 	VkDeviceSize size{0};
+};
+
+template <uint32_t Vertices, uint32_t Indices>
+struct DeviceMesh {
+	Mesh<Vertices, Indices> mesh;
+	DeviceResource vertexResource;
+	DeviceResource indicesResource;
 };
 
 }

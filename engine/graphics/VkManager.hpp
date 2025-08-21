@@ -2,7 +2,7 @@
 
 #include "VkCommon.hpp"
 #include "VkScreen.hpp"
-namespace Graphics{
+namespace VK{
 
 /////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////  Global utils functions  ////////////////////////////////////
@@ -31,7 +31,6 @@ static const char* DeviceExtensions[NUM_DEVICE_EXTENSIONS] = {
 #define WIDTH 800
 #define HEIGHT 600
 
-
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////  Vk interface  ////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -46,15 +45,34 @@ public:
     VkManager(const VkManager&) = delete;
     void operator=(const VkManager&) = delete;
 
+    static void Init() {
+        if (!initialized) {
+            initialized = true;
+            instance().init_vulkan();
+        }
+    }
+
+    static void Quit() {
+        if (initialized) {
+            instance().cleanup_vulkan();
+            initialized = false;
+        }
+    }
+
     uint32_t find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags properties);
     DeviceResource createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     void copyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
     void clearResource(DeviceResource& resource);
     void showWindow();
     void waitIdle();
+    void drawFrame();
 
-    // Not sure if should be public
-    Graphics::SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice device);
+private:
+    explicit VkManager();
+
+    // Methods
+
+    VK::SwapChainSupportDetails query_swap_chain_support(VkPhysicalDevice device);
     QueueFamilyIndices find_queue_families(VkPhysicalDevice device);
     VkPhysicalDevice pick_physical_device();
     void create_image_views();
@@ -68,12 +86,12 @@ public:
     VkExtent2D choose_swap_extent(VkSurfaceCapabilitiesKHR *capabilities);
     void create_graphics_pipeline();
     void init_vulkan();
-    void draw_frame();
     void cleanup_vulkan();
     void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index);
 
-private:
-    explicit VkManager();
+    // Attributes
+
+    static inline bool initialized{false};
 
     VkScreen vkScreen;
 
@@ -122,7 +140,7 @@ private:
     uint32_t current_frame = 0;
     bool framebuffer_resized = false;
 
-    Graphics::VkConfiguration vk_config{
+    VK::VkConfiguration vk_config{
         .enableValidationLayers = true,
         .maxValidationLayers = 1,
         .numValidationLayers = 1,
@@ -132,8 +150,15 @@ private:
 };
 
 
+static void Init() {
+    VkManager::Init();
+}
+
+static void Quit() {
+    VkManager::Quit();
+}
 
 
 
 
-} // Namespace Graphics
+} // Namespace VK

@@ -3,7 +3,7 @@
 #define NUM_VERTICES 4
 #define NUM_VERTEX_INDICES 6
 
-Graphics::Mesh<NUM_VERTICES, NUM_VERTEX_INDICES> mesh = {
+VK::Mesh<NUM_VERTICES, NUM_VERTEX_INDICES> mesh = {
 	.vertices = {
     	{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
     	{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
@@ -12,13 +12,13 @@ Graphics::Mesh<NUM_VERTICES, NUM_VERTEX_INDICES> mesh = {
 	.indices = {0, 1, 2, 2, 3, 0}
 };
 
-Graphics::DeviceResource vertexResource;
-Graphics::DeviceResource indexResource;
-Graphics::DeviceResource uniformResources[MAX_FRAMES_IN_FLIGHT];
+VK::DeviceResource vertexResource;
+VK::DeviceResource indexResource;
+VK::DeviceResource uniformResources[MAX_FRAMES_IN_FLIGHT];
 
 void* uniform_buffers_mapped[MAX_FRAMES_IN_FLIGHT] = {0};
 
-namespace Graphics {
+namespace VK {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ bool check_validation_layer_support() {
 		bool layer_found = false;
 		
 		for (int j = 0; j < layer_count; j++) {
-			if (strcmp(Graphics::ValidationLayers[i], available_layers[j].layerName) == 0) {
+			if (strcmp(VK::ValidationLayers[i], available_layers[j].layerName) == 0) {
 				layer_found = true;
 				break;
 			}
@@ -81,7 +81,7 @@ char const * const * get_required_extensions(const VkConfiguration& config, uint
 	return (char const * const *) extensions;
 }
 
-void free_swap_chain_support(Graphics::SwapChainSupportDetails* details) {
+void free_swap_chain_support(VK::SwapChainSupportDetails* details) {
 	delete[] details->formats;
 	delete[] details->present_modes;
 }
@@ -105,7 +105,7 @@ void populate_debug_messenger_create_info(VkDebugUtilsMessengerCreateInfoEXT* cr
 VkVertexInputBindingDescription get_binding_description() {
 	VkVertexInputBindingDescription binding_description = {0};
 	binding_description.binding = 0;
-	binding_description.stride = sizeof(Graphics::Vertex);
+	binding_description.stride = sizeof(VK::Vertex);
 	binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 	return binding_description;
@@ -117,12 +117,12 @@ VkVertexInputAttributeDescription* get_attribute_descriptions(size_t* count) {
 	attribute_descriptions[0].binding = 0;
 	attribute_descriptions[0].location = 0;
 	attribute_descriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-	attribute_descriptions[0].offset = offsetof(Graphics::Vertex, pos);
+	attribute_descriptions[0].offset = offsetof(VK::Vertex, pos);
 
 	attribute_descriptions[1].binding = 0;
 	attribute_descriptions[1].location = 1;
 	attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	attribute_descriptions[1].offset = offsetof(Graphics::Vertex, color);
+	attribute_descriptions[1].offset = offsetof(VK::Vertex, color);
 
 	*count = 2;
 	return attribute_descriptions;
@@ -136,8 +136,11 @@ VkVertexInputAttributeDescription* get_attribute_descriptions(size_t* count) {
 
 
 VkManager::VkManager() : vkScreen("Vulkan SDL3", WIDTH, HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE) {
-	// Initialise Vulkan
-	init_vulkan();
+	if (!initialized) {
+		// TODO : see if recoverable later on
+		fprintf(stderr, "VkManager not initialized, call VkManager::Init() first\n Shutting down...\n");
+		exit(1);
+	}
 }
 
 void VkManager::showWindow() {
@@ -168,8 +171,8 @@ uint32_t VkManager::find_memory_type(uint32_t type_filter, VkMemoryPropertyFlags
     exit(1);
 }
 
-Graphics::QueueFamilyIndices VkManager::find_queue_families(VkPhysicalDevice device) {
-	Graphics::QueueFamilyIndices indices = {0};
+VK::QueueFamilyIndices VkManager::find_queue_families(VkPhysicalDevice device) {
+	VK::QueueFamilyIndices indices = {0};
 
 	uint32_t queue_family_count = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, NULL);
@@ -201,8 +204,8 @@ Graphics::QueueFamilyIndices VkManager::find_queue_families(VkPhysicalDevice dev
 	return indices;
 }
 
-Graphics::SwapChainSupportDetails VkManager::query_swap_chain_support(VkPhysicalDevice device) {
-	Graphics::SwapChainSupportDetails details = {0};
+VK::SwapChainSupportDetails VkManager::query_swap_chain_support(VkPhysicalDevice device) {
+	VK::SwapChainSupportDetails details = {0};
 
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
@@ -233,9 +236,9 @@ VkPhysicalDevice VkManager::pick_physical_device() {
 
 	for (int i = 0; i < device_count; i++) {
 		printf(" Physical Device %d\n", i);
-        Graphics::QueueFamilyIndices indices = find_queue_families(devices[i]);
+        VK::QueueFamilyIndices indices = find_queue_families(devices[i]);
 
-		printf("  Graphics Family: %d\n", indices.graphics_family);
+		printf("  VK Family: %d\n", indices.graphics_family);
 		printf("  Present Family: %d\n", indices.present_family);
 		
         uint32_t extension_count;
@@ -250,7 +253,7 @@ VkPhysicalDevice VkManager::pick_physical_device() {
 		for (int j = 0; j < NUM_DEVICE_EXTENSIONS; j++) {
 			bool extension_found = false;
 			for (int k = 0; k < extension_count; k++) {
-				if (strcmp(Graphics::DeviceExtensions[j], available_extensions[k].extensionName) == 0) {
+				if (strcmp(VK::DeviceExtensions[j], available_extensions[k].extensionName) == 0) {
 					extension_found = true;
 					break;
 				}
@@ -258,7 +261,7 @@ VkPhysicalDevice VkManager::pick_physical_device() {
 
 			if (!extension_found) {
 				required_extensions_supported = false;
-				printf("Extension %s not supported\n", Graphics::DeviceExtensions[j]);
+				printf("Extension %s not supported\n", VK::DeviceExtensions[j]);
 				break;
 			}
 		}
@@ -269,7 +272,7 @@ VkPhysicalDevice VkManager::pick_physical_device() {
 			continue;
 		}
 		
-		Graphics::SwapChainSupportDetails swap_chain_support = query_swap_chain_support(devices[i]);
+		VK::SwapChainSupportDetails swap_chain_support = query_swap_chain_support(devices[i]);
 		bool swap_chain_adequate = swap_chain_support.formats_count > 0 && swap_chain_support.present_modes_count > 0;
 		free_swap_chain_support(&swap_chain_support);
 
@@ -397,7 +400,7 @@ void VkManager::cleanup_framebuffers() {
 
 
 void VkManager::create_swap_chain() {
-	Graphics::SwapChainSupportDetails swap_chain_support = query_swap_chain_support(physical_device);
+	VK::SwapChainSupportDetails swap_chain_support = query_swap_chain_support(physical_device);
 
 	if (swap_chain_support.formats_count == 0) {
 		fprintf(stderr, "Swap chain support not available (no formats)\n");
@@ -449,7 +452,7 @@ void VkManager::create_swap_chain() {
 	create_info.imageArrayLayers = 1;
 	create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-	Graphics::QueueFamilyIndices indices = find_queue_families(physical_device);
+	VK::QueueFamilyIndices indices = find_queue_families(physical_device);
 	uint32_t queueFamilyIndices[] = {indices.graphics_family, indices.present_family};
 
 	if (indices.graphics_family != indices.present_family) {
@@ -639,7 +642,7 @@ void VkManager::create_graphics_pipeline(void) {
 
 	delete[] attribute_descriptions;
 
-	printf(" Graphics pipeline created\n");
+	printf(" VK pipeline created\n");
 }
 
 VkShaderModule VkManager::create_shader_module(const char* code, size_t code_size) {
@@ -754,7 +757,7 @@ void VkManager::clearResource(DeviceResource& resource) {
 void VkManager::init_vulkan() {
 	printf("Initialising Vulkan\n");
 
-	if (vk_config.enableValidationLayers && !Graphics::check_validation_layer_support()) {
+	if (vk_config.enableValidationLayers && !VK::check_validation_layer_support()) {
 		fprintf(stderr, "validation layers requested, but not available!");
 		exit(1);
 	}
@@ -783,7 +786,7 @@ void VkManager::init_vulkan() {
 	memset(&debug_create_info, 0, sizeof(VkDebugUtilsMessengerCreateInfoEXT));
 	if (vk_config.enableValidationLayers) {
 		instance_create_info.enabledLayerCount = NUM_VALIDATION_LAYERS;
-		instance_create_info.ppEnabledLayerNames = Graphics::ValidationLayers;
+		instance_create_info.ppEnabledLayerNames = VK::ValidationLayers;
 
 		populate_debug_messenger_create_info(&debug_create_info);
 		instance_create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debug_create_info;
@@ -833,7 +836,7 @@ void VkManager::init_vulkan() {
 	// Next we need to create a logical device to interface with the physical device
 	// (and also the graphics and presentation queues)
 	
-	Graphics::QueueFamilyIndices physical_indices = find_queue_families(physical_device);
+	VK::QueueFamilyIndices physical_indices = find_queue_families(physical_device);
 	
 	// I don't fully understand why, but sometimes it looks like both families could be the same
 	uint32_t unique_queue_families[2] = {physical_indices.graphics_family, physical_indices.present_family};
@@ -865,11 +868,11 @@ void VkManager::init_vulkan() {
 	create_info.pEnabledFeatures = &device_features;
 
 	create_info.enabledExtensionCount = NUM_DEVICE_EXTENSIONS;
-	create_info.ppEnabledExtensionNames = Graphics::DeviceExtensions;
+	create_info.ppEnabledExtensionNames = VK::DeviceExtensions;
 
 	if (vk_config.enableValidationLayers) {
 		create_info.enabledLayerCount = NUM_VALIDATION_LAYERS;
-		create_info.ppEnabledLayerNames = Graphics::ValidationLayers;
+		create_info.ppEnabledLayerNames = VK::ValidationLayers;
 	} else {
 		create_info.enabledLayerCount = 0;
 	}
@@ -977,7 +980,7 @@ void VkManager::init_vulkan() {
 	// ----- Create the vertex buffer -----
 	
 	VkDeviceSize buffer_size = sizeof(mesh.vertices[0]) * mesh.vertex_count;
-	Graphics::DeviceResource stagingVertexResource = createBuffer(
+	VK::DeviceResource stagingVertexResource = createBuffer(
 		buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 	);
@@ -998,7 +1001,7 @@ void VkManager::init_vulkan() {
 	// ----- Create the index buffer -----
 	
 	VkDeviceSize index_buffer_size = sizeof(mesh.indices[0]) * mesh.index_count;
-	Graphics::DeviceResource stagingIndexResource = createBuffer(
+	VK::DeviceResource stagingIndexResource = createBuffer(
 		index_buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
@@ -1018,7 +1021,7 @@ void VkManager::init_vulkan() {
 	// Map the buffer memory and copy the vertex data into it
 	
 	// ----- Create the uniform buffer -----
-	VkDeviceSize uniform_buffer_size = sizeof(Graphics::UniformBufferObject);
+	VkDeviceSize uniform_buffer_size = sizeof(VK::UniformBufferObject);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 		uniformResources[i] = createBuffer(
@@ -1070,7 +1073,7 @@ void VkManager::init_vulkan() {
 		memset(&buffer_info, 0, sizeof(VkDescriptorBufferInfo));
 		buffer_info.buffer = uniformResources[i].buffer;
 		buffer_info.offset = 0;
-		buffer_info.range = sizeof(Graphics::UniformBufferObject);
+		buffer_info.range = sizeof(VK::UniformBufferObject);
 
 		VkWriteDescriptorSet descriptor_write;
 		memset(&descriptor_write, 0, sizeof(VkWriteDescriptorSet));
@@ -1186,7 +1189,7 @@ void VkManager::record_command_buffer(VkCommandBuffer command_buffer, uint32_t i
 	}
 }
 
-void VkManager::draw_frame() {
+void VkManager::drawFrame() {
 	vkWaitForFences(device, 1, &in_flight_fences[current_frame], VK_TRUE, UINT64_MAX);
 
 	uint32_t image_index;
@@ -1213,7 +1216,7 @@ void VkManager::draw_frame() {
 	uint64_t ticks = SDL_GetTicksNS();
 	double t = SDL_NS_TO_SECONDS((double) ticks);
 
-	Graphics::UniformBufferObject ubo = {0};
+	VK::UniformBufferObject ubo = {0};
 
 	// Model matrix
 	glm_mat4_identity(ubo.model);

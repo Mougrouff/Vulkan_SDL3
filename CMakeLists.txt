@@ -85,6 +85,44 @@ elseif(WIN32)
 
 endif()
 
+find_package(Vulkan COMPONENTS glslc)
+find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
+
+if(NOT glslc_executable)
+	message(FATAL_ERROR "glslc executable not found. Please ensure Vulkan SDK is installed and glslc is in your PATH.")
+else()
+	message(STATUS "Found glslc at: ${glslc_executable}")
+endif()
+
+function(compile_shader target)
+    cmake_parse_arguments(PARSE_ARGV 1 arg "" "ENV;FORMAT" "SOURCES")
+    foreach(source ${arg_SOURCES})
+        add_custom_command(
+            OUTPUT ${source}.${arg_FORMAT}
+            DEPENDS ${source}
+            DEPFILE ${source}.d
+            COMMAND
+                ${glslc_executable}
+                -o ${source}.${arg_FORMAT}
+                ${CMAKE_CURRENT_SOURCE_DIR}/${source}
+        )
+        target_sources(${target} PRIVATE ${source}.${arg_FORMAT})
+    endforeach()
+endfunction()
+
+file(GLOB SHADER_FRAGS RELATIVE  ${CMAKE_SOURCE_DIR} "${PROJECT_SOURCE_DIR}/shaders/*.frag")
+file(GLOB SHADER_VERTS RELATIVE  ${CMAKE_SOURCE_DIR} "${PROJECT_SOURCE_DIR}/shaders/*.vert")
+
+message(STATUS "Found fragment shaders: ${SHADER_FRAGS}")
+message(STATUS "Found vertex shaders: ${SHADER_VERTS}")
+
+compile_shader(main
+	FORMAT spv
+    SOURCES
+        ${SHADER_FRAGS}
+		${SHADER_VERTS}
+)
+
 # Copy shaders to the output directory
 
 # Find all .spv files in the shaders directory

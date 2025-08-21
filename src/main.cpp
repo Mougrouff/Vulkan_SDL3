@@ -10,8 +10,10 @@ int main(void) {
         return 1;
     }
 
-	Graphics::VkManager::instance(); // Force vulkan initialization, ugly, change later
-	Graphics::VkManager::instance().showWindow();
+	VK::Init();
+	printf("Vulkan initialized\n");
+
+	VK::VkManager::instance().showWindow();
 	
 	// ----- Main loop -----
     bool running = true;
@@ -30,11 +32,13 @@ int main(void) {
 			}
         }
 
-		Graphics::VkManager::instance().draw_frame();
+		VK::VkManager::instance().drawFrame();
     }
 
-	Graphics::VkManager::instance().waitIdle();
-	Graphics::VkManager::instance().cleanup_vulkan();
+	VK::VkManager::instance().waitIdle();
+
+	VK::Quit();
+	printf("Vulkan cleaned up\n");
 
 	// Cleanup SDL
 	printf("Cleaning up SDL\n");

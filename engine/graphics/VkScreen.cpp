@@ -2,7 +2,7 @@
 
 
 
-namespace Graphics {
+namespace VK {
 
     
 VkScreen::VkScreen(const char* title, uint16_t width, uint16_t height, SDL_WindowFlags flags): flags_m(flags) {
